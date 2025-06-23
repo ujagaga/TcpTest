@@ -2,10 +2,11 @@
 
 import socket
 import requests
+import config
 
 HOST = '0.0.0.0'
-PORT = 4060
-MONITOR_URL = 'http://localhost:5000/'
+PORT = config.TCP_SERVER_PORT
+MONITOR_URL = config.MONITOR_URL
 
 def send_to_flask(text_to_send):
     try:

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import socket
-import sys
+import config
 
-HOST = 'localhost'  # or your server IP
-PORT = 4060
 
 def send_tcp_message(message):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
+        s.connect((config.TCP_SERVER_URL, config.TCP_SERVER_PORT))
         s.sendall(message.encode())
 
 if __name__ == '__main__':

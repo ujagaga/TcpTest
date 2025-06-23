@@ -10,5 +10,6 @@ The database used is a simple Sqlite database. You may remove it at any time to 
 
 ## How to start
 1. pip install Flask, requests
-2. Prepare the tcp_server to run on a computer continuously. I run it as a service on a linux computer.
-3. Deploy the tcp_monitor on some hosting service so it is accessible by anyone.
+2. Rename config.py.example to config.py and adjust parameters
+3. Prepare the tcp_server to run on a computer continuously. I run it as a service on a linux computer. Installed it using the "install_tcp_server.sh"
+4. Deploy the tcp_monitor on some hosting service so it is accessible by anyone.
