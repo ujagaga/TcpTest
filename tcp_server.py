@@ -13,7 +13,9 @@ def send_to_flask(text_to_send):
         # Send message as form data, like your curl
         response = requests.post(MONITOR_URL, data={'message': text_to_send}, timeout=2)
         if response.status_code != 200:
-            print(f"Flask responded with status {response.status_code}")
+            print(f"TX status: {response.status_code}")
+        else:
+            print(f"TX response: {response.text}")
     except Exception as e:
         print(f"Failed to send to Flask: {e}")
 

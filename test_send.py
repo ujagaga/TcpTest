@@ -12,4 +12,4 @@ def send_tcp_message(message):
         print(f"Sending {message}")
 
 if __name__ == '__main__':
-    send_tcp_message("Test msg 2")
+    send_tcp_message("Test msg 4")
