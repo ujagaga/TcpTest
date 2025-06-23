@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import socket
+import requests
+
+HOST = '0.0.0.0'
+PORT = 4060
+MONITOR_URL = 'http://localhost:5000/'
+
+def send_to_flask(text_to_send):
+    try:
+        # Send message as form data, like your curl
+        response = requests.post(MONITOR_URL, data={'message': text_to_send}, timeout=2)
+        if response.status_code != 200:
+            print(f"Flask responded with status {response.status_code}")
+    except Exception as e:
+        print(f"Failed to send to Flask: {e}")
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((HOST, PORT))
+    s.listen()
+
+    print(f"Listening on {HOST}:{PORT}...")
+
+    try:
+        while True:
+            conn, addr = s.accept()
+            with conn:
+                print(f"Connected by {addr}")
+                while True:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+                    text = data.decode(errors='ignore').strip()
+                    print(f"RX: {text}")
+                    send_to_flask(text)
+    except KeyboardInterrupt:
+        print("\nServer shutting down.")
