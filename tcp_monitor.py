@@ -37,7 +37,20 @@ TEMPLATE = """
   </style>
 </head>
 <body>
-  <h1>Last 20 Messages</h1>
+  <h1 style="display: flex; align-items: center; gap: 1rem;">
+  Last 20 Messages
+  <form method="post" action="/clear" style="margin:0;">
+    <button type="submit" style="
+      background: #222;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      font-family: monospace;
+      cursor: pointer;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+    ">Clear</button>
+  </form>
+</h1>
   <ul id="message-list">
   {% for msg in messages %}
     <li><span class="timestamp">{{ msg[2] }}</span>: {{ msg[1] }}</li>
@@ -109,6 +122,16 @@ def get_messages():
     ensure_db()
     messages = get_last_messages()
     return jsonify([{"text": msg[1], "timestamp": msg[2]} for msg in messages])
+
+
+@application.route('/clear', methods=['POST'])
+def clear_messages():
+    ensure_db()
+    db = get_db()
+    db.execute('DELETE FROM messages')
+    db.commit()
+    return redirect(url_for('index'))
+
 
 if __name__ == '__main__':
     application.run(debug=True)
