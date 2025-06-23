@@ -112,7 +112,7 @@ def index():
         db.execute('INSERT INTO messages (text, timestamp) VALUES (?, ?)', (text, timestamp))
         db.execute('DELETE FROM messages WHERE id NOT IN (SELECT id FROM messages ORDER BY id DESC LIMIT 20)')
         db.commit()
-        return redirect(url_for('index'))
+        return "OK"
 
     messages = get_last_messages()
     return render_template_string(TEMPLATE, messages=messages)
