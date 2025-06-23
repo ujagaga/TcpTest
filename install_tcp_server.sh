@@ -34,7 +34,7 @@ StartLimitIntervalSec=0
 [Service]
 Type=simple
 User=$USER
-ExecStart=$PWD/run_server.sh
+ExecStart=$PWD/tcp_server.py
 WorkingDirectory=$PWD
 Restart=on-failure
 
