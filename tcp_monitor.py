@@ -59,20 +59,27 @@ TEMPLATE = """
   </ul>
 
   <script>
-    async function fetchMessages() {
-      const res = await fetch('/messages');
-      const data = await res.json();
-      const list = document.getElementById('message-list');
-      list.innerHTML = '';
-      data.forEach(msg => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="timestamp">${msg.timestamp}</span>: ${msg.text}`;
-        li.style.marginBottom = '8px';
-        list.appendChild(li);
-      });
+    function utcToLocal(utcStr) {
+    const date = new Date(utcStr + 'Z');
+    return date.toLocaleString(); // adjust format if needed
     }
+    
+    async function fetchMessages() {
+    const res = await fetch('/messages');
+    const data = await res.json();
+    const list = document.getElementById('message-list');
+    list.innerHTML = '';
+    data.forEach(msg => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="timestamp">${utcToLocal(msg.timestamp)}</span>: ${msg.text}`;
+      li.style.marginBottom = '8px';
+      list.appendChild(li);
+    });
+    }
+    
     setInterval(fetchMessages, 3000);
   </script>
+
 </body>
 </html>
 """
