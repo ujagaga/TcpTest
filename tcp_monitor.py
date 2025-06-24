@@ -135,4 +135,4 @@ def clear_messages():
 
 
 if __name__ == '__main__':
-    application.run(debug=False, port=config.MONITOR_PORT)
+    application.run(debug=False, port=config.MONITOR_PORT, host=config.MONITOR_URL)
