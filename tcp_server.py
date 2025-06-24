@@ -6,7 +6,7 @@ import config
 
 HOST = '0.0.0.0'
 PORT = config.TCP_SERVER_PORT
-MONITOR_URL = config.MONITOR_URL
+MONITOR_URL = f"http://{config.MONITOR_URL}:{config.MONITOR_PORT}"
 
 def send_to_flask(text_to_send):
     try:
@@ -35,8 +35,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     data = conn.recv(1024)
                     if not data:
                         break
-                    text = data.decode(errors='ignore').strip()
-                    print(f"RX: {text}")
-                    send_to_flask(text)
+
+                    hexData = ' '.join(f'{b:02X}' for b in data)
+                    result = f"HEX: {hexData}"
+
+                    print(f"RX: {result}")
+                    send_to_flask(result)
     except KeyboardInterrupt:
         print("\nServer shutting down.")

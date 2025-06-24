@@ -5,6 +5,7 @@ import sqlite3
 import os
 from datetime import datetime, UTC
 from contextlib import closing
+import config
 
 application = Flask(__name__)
 DATABASE = 'messages.db'
@@ -134,4 +135,4 @@ def clear_messages():
 
 
 if __name__ == '__main__':
-    application.run(debug=True)
+    application.run(debug=False, port=config.MONITOR_PORT)
