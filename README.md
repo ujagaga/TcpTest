@@ -8,6 +8,8 @@ It consists of:
 
 The database used is a simple Sqlite database. You may remove it at any time to clear messages or use a clear button on the web page.
 
+The messages are stored in database with a UTC timestamp, but displayed on the Monitor web page in local time. Only the last 20 messages are stored, so older ones are deleted.
+
 ## How to start
 1. pip install Flask, requests
 2. Rename config.py.example to config.py and adjust parameters
