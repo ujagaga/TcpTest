@@ -66,10 +66,20 @@ TEMPLATE = """
   </ul>
 
   <script>
-    function utcToLocal(utcStr) {
-      const date = new Date(utcStr + 'Z');
-      return date.toLocaleString();
-    }
+    function pad(n) {
+    return n.toString().padStart(2, '0');
+  }
+
+  function utcToLocal(utcStr) {
+    const date = new Date(utcStr + 'Z');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1); // 0-based
+    const day = pad(date.getDate());
+    const hour = pad(date.getHours());
+    const min = pad(date.getMinutes());
+    const sec = pad(date.getSeconds());
+    return `${year}-${month}-${day} ${hour}:${min}:${sec}`;
+  } 
 
     async function fetchMessages() {
       const res = await fetch('/messages');
@@ -131,13 +141,20 @@ def get_external_ip():
     except Exception as e:
         return 'Unavailable'
 
+# --- Timestamp helper
+def format_timestamp(ts_str):
+    dt = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+    local = dt.astimezone()
+    return local.strftime("%Y-%m-%d %H:%M:%S")  # leading zeros by default
+
 # --- Flask Routes ---
 @application.route('/')
 def index():
     ensure_db()
-    messages = get_last_messages()
+    raw_messages = get_last_messages()
+    formatted = [(msg[0], msg[1], format_timestamp(msg[2])) for msg in raw_messages]
     external_ip = get_external_ip()
-    return render_template_string(TEMPLATE, messages=messages, external_ip=external_ip)
+    return render_template_string(TEMPLATE, messages=formatted, external_ip=external_ip)
 
 @application.route('/messages')
 def get_messages():
