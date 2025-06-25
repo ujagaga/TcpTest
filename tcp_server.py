@@ -183,13 +183,12 @@ def tcp_listener():
                 conn, addr = s.accept()
                 with conn:
                     print(f"[TCP] Connected by {addr}")
-                    while True:
-                        data = conn.recv(1024)
-                        if not data:
-                            break
+                    data = conn.recv(1024)
+                    if data:
                         hex_data = ' '.join(f'{b:02X}' for b in data)
                         print(f"[TCP] RX: {hex_data}")
                         insert_message(f"HEX: {hex_data}")
+                    print(f"[TCP] Closing connection with {addr}")
         except Exception as e:
             print(f"[TCP SERVER] Listener error: {e}")
 
