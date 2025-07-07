@@ -9,6 +9,8 @@ import threading
 import socket
 import config
 import subprocess
+import time
+
 
 application = Flask(__name__)
 DATABASE = 'messages.db'
@@ -173,26 +175,36 @@ def clear_messages():
 # --- TCP Listener in Background ---
 def tcp_listener():
     ensure_db()
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((HOST, TCP_SERVER_PORT))
-        s.listen()
-        print(f"[TCP SERVER] Listening on {HOST}:{TCP_SERVER_PORT}...")
-        try:
-            while True:
-                conn, addr = s.accept()
-                with conn:
-                    print(f"[TCP] Connected by {addr}")
-                    data = conn.recv(1024)
-                    if data:
-                        hex_data = ' '.join(f'{b:02X}' for b in data)
-                        print(f"[TCP] RX: {hex_data}")
-                        insert_message(f"HEX: {hex_data}")
-                    print(f"[TCP] Closing connection with {addr}")
-        except Exception as e:
-            print(f"[TCP SERVER] Listener error: {e}")
+    while True:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind((HOST, TCP_SERVER_PORT))
+            s.listen()
+            print(f"[TCP SERVER] Listening on {HOST}:{TCP_SERVER_PORT}...")
 
-# --- Main Entry ---
+            s.settimeout(120)  # 2 minutes inactivity timeout
+
+            try:
+                while True:
+                    try:
+                        conn, addr = s.accept()
+                    except socket.timeout:
+                        print("[TCP SERVER] No connections for 2 minutes. Restarting listener socket...")
+                        break  # Break inner loop to recreate socket
+
+                    with conn:
+                        print(f"[TCP] Connected by {addr}")
+                        data = conn.recv(1024)
+                        if data:
+                            hex_data = ' '.join(f'{b:02X}' for b in data)
+                            print(f"[TCP] RX: {hex_data}")
+                            insert_message(f"HEX: {hex_data}")
+                        print(f"[TCP] Closing connection with {addr}")
+            except Exception as e:
+                print(f"[TCP SERVER] Listener error: {e}")
+                time.sleep(1)  # slight pause before restarting socket
+
+
 if __name__ == '__main__':
     threading.Thread(target=tcp_listener, daemon=True).start()
     print(f"[TCP_MONITOR] Serving web preview on port {config.MONITOR_PORT}")
