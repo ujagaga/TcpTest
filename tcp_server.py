@@ -175,34 +175,35 @@ def clear_messages():
 # --- TCP Listener in Background ---
 def tcp_listener():
     ensure_db()
-    while True:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            s.bind((HOST, TCP_SERVER_PORT))
-            s.listen()
-            print(f"[TCP SERVER] Listening on {HOST}:{TCP_SERVER_PORT}...")
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((HOST, TCP_SERVER_PORT))
+        s.listen()
+        print(f"[TCP SERVER] Listening on {HOST}:{TCP_SERVER_PORT}...")
 
-            s.settimeout(120)  # 2 minutes inactivity timeout
-
+        while True:
             try:
-                while True:
-                    try:
-                        conn, addr = s.accept()
-                    except socket.timeout:
-                        print("[TCP SERVER] No connections for 2 minutes. Restarting listener socket...")
-                        break  # Break inner loop to recreate socket
+                conn, addr = s.accept()
+                print(f"[TCP] Connected by {addr}")
+                conn.settimeout(300)  # 5 minutes of inactivity
 
-                    with conn:
-                        print(f"[TCP] Connected by {addr}")
+                try:
+                    while True:
                         data = conn.recv(1024)
-                        if data:
-                            hex_data = ' '.join(f'{b:02X}' for b in data)
-                            print(f"[TCP] RX: {hex_data}")
-                            insert_message(f"HEX: {hex_data}")
-                        print(f"[TCP] Closing connection with {addr}")
+                        if not data:
+                            print(f"[TCP] Connection closed by client {addr}")
+                            break
+                        hex_data = ' '.join(f'{b:02X}' for b in data)
+                        print(f"[TCP] RX: {hex_data}")
+                        insert_message(f"HEX: {hex_data}")
+                except socket.timeout:
+                    print(f"[TCP] Connection with {addr} timed out due to inactivity.")
+                finally:
+                    conn.close()
+                    print(f"[TCP] Closed connection with {addr}")
+
             except Exception as e:
                 print(f"[TCP SERVER] Listener error: {e}")
-                time.sleep(1)  # slight pause before restarting socket
 
 
 if __name__ == '__main__':
