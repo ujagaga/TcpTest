@@ -9,7 +9,7 @@ import threading
 import socket
 import config
 import subprocess
-import time
+import argparse
 
 
 application = Flask(__name__)
@@ -207,6 +207,19 @@ def tcp_listener():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="TCP Monitor Server")
+    parser.add_argument('tcp_port', nargs='?', type=int, help='Optional TCP server port override')
+    args = parser.parse_args()
+
+    if args.tcp_port:
+        TCP_SERVER_PORT = args.tcp_port
+        MONITOR_PORT = TCP_SERVER_PORT + 1
+    else:
+        TCP_SERVER_PORT = config.TCP_SERVER_PORT
+        MONITOR_PORT = config.MONITOR_PORT
+
+    print(f"[CONFIG] TCP_SERVER_PORT: {TCP_SERVER_PORT}, MONITOR_PORT: {MONITOR_PORT}")
+
     threading.Thread(target=tcp_listener, daemon=True).start()
-    print(f"[TCP_MONITOR] Serving web preview on port {config.MONITOR_PORT}")
-    application.run(debug=False, port=config.MONITOR_PORT, host=HOST)
+    print(f"[TCP_MONITOR] Serving web preview on port {MONITOR_PORT}")
+    application.run(debug=False, port=MONITOR_PORT, host=HOST)
