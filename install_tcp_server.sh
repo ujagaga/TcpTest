@@ -1,19 +1,56 @@
 #!/usr/bin/env bash
 
+# Define variables
+VENV_DIR="venv"
+PYTHON_BIN="python3"
 SERVICE_NAME=tcp_server.service
 SERVICE_FILE=/etc/systemd/system/$SERVICE_NAME
 
-# --- Installation Section ---
-echo "Installing dependencies..."
-if ! sudo apt update -y; then
-  echo "Error: Failed to update apt repositories. Aborting installation."
-  exit 1
+
+# Check if Python is installed
+if ! command -v $PYTHON_BIN &> /dev/null; then
+    echo "Error: $PYTHON_BIN is not installed. Please install Python 3."
+    exit 1
 fi
 
-if ! sudo apt install -y python3-requests; then
-  echo "Error: Failed to install dependencies. Aborting installation."
-  exit 1
+# Create the virtual environment
+if [ -d "$VENV_DIR" ]; then
+    echo "Virtual environment already exists in '$VENV_DIR'."
+else
+    echo "Creating virtual environment in '$VENV_DIR'..."
+    $PYTHON_BIN -m venv $VENV_DIR
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to create virtual environment."
+        exit 1
+    fi
+    echo "Virtual environment created successfully."
 fi
+
+# Activate the virtual environment
+source $VENV_DIR/bin/activate
+
+# Upgrade pip to the latest version
+echo "Upgrading pip..."
+pip install --upgrade pip
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to upgrade pip."
+    deactivate
+    exit 1
+fi
+
+# Install Flask
+echo "Installing Flask..."
+pip install flask requests
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to install Flask."
+    deactivate
+    exit 1
+fi
+
+echo "Flask installed successfully."
+
+# Deactivate the virtual environment
+deactivate
 
 echo "Making tcp_server.py executable..."
 chmod +x tcp_server.py
