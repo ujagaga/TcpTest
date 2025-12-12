@@ -16,7 +16,8 @@ application = Flask(__name__)
 DATABASE = 'messages.db'
 
 HOST = '0.0.0.0'
-TCP_SERVER_PORT = config.TCP_SERVER_PORT
+TCP_SERVER_PORT = 4060
+
 
 # --- HTML Template ---
 TEMPLATE = """
@@ -213,11 +214,8 @@ if __name__ == '__main__':
 
     if args.tcp_port:
         TCP_SERVER_PORT = args.tcp_port
-        MONITOR_PORT = TCP_SERVER_PORT + 1
-    else:
-        TCP_SERVER_PORT = config.TCP_SERVER_PORT
-        MONITOR_PORT = config.MONITOR_PORT
-
+    MONITOR_PORT = TCP_SERVER_PORT + 1
+    
     print(f"[CONFIG] TCP_SERVER_PORT: {TCP_SERVER_PORT}, MONITOR_PORT: {MONITOR_PORT}")
 
     threading.Thread(target=tcp_listener, daemon=True).start()
