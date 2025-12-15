@@ -7,7 +7,6 @@ from datetime import datetime, UTC
 from contextlib import closing
 import threading
 import socket
-import config
 import subprocess
 import argparse
 
